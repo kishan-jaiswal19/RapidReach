@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and medical information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "responder", "admin"] },
+        "bloodType": { "type": "string" },
+        "allergies": { "type": "string" },
+        "medications": { "type": "string" },
+        "conditions": { "type": "string" },
+        "emergencyContact": { "type": "string" },
+        "status": { "type": "string", "enum": ["safe", "alerting"] },
+        "lastLocation": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" },
+            "timestamp": { "type": "string", "format": "date-time" }
+          }
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "Incident": {
+      "title": "Incident",
+      "description": "Emergency incident report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "severity": { "type": "string", "enum": ["critical", "moderate", "low"] },
+        "status": { "type": "string", "enum": ["reported", "dispatched", "resolved"] },
+        "reporterUid": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" },
+            "address": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "responderUid": { "type": "string" }
+      },
+      "required": ["type", "severity", "status", "reporterUid", "location", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/incidents/{incidentId}": {
+      "schema": "Incident",
+      "description": "Emergency incidents"
+    }
+  }
+}

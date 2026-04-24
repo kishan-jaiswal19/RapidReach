@@ -1,0 +1,9 @@
+{
+  "name": "RapidReach",
+  "description": "A smarter emergency response app with one-tap SOS, AI triage, and real-time responder tracking.",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone"
+  ],
+  "majorCapabilities": []
+}

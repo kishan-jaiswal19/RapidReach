@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (matches auth.uid)
+    // Fields:
+    //   - uid: string (required)
+    //   - displayName: string
+    //   - email: string (required)
+    //   - photoURL: string
+    //   - role: string (enum: user, responder, admin)
+    //   - bloodType: string
+    //   - allergies: string
+    //   - medications: string
+    //   - conditions: string
+    //   - emergencyContact: string
+    //   - status: string (enum: safe, alerting)
+    //   - lastLocation: map { lat: number, lng: number, timestamp: string }
+    //
+    // Collection: incidents
+    // Document ID: {incidentId}
+    // Fields:
+    //   - type: string (required)
+    //   - description: string
+    //   - severity: string (enum: critical, moderate, low)
+    //   - status: string (enum: reported, dispatched, resolved)
+    //   - reporterUid: string (required)
+    //   - location: map { lat: number, lng: number, address: string }
+    //   - createdAt: timestamp (required)
+    //   - responderUid: string
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         request.auth.token.email == "kishanjais9274@gmail.com");
+    }
+
+    function isResponder() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'responder';
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email']) &&
+             data.uid is string &&
+             data.email is string &&
+             (!('role' in data) || data.role in ['user', 'responder', 'admin']) &&
+             (!('status' in data) || data.status in ['safe', 'alerting']);
+    }
+
+    function isValidIncident(data) {
+      return data.keys().hasAll(['type', 'severity', 'status', 'reporterUid', 'location', 'createdAt']) &&
+             data.type is string &&
+             data.severity in ['critical', 'moderate', 'low'] &&
+             data.status in ['reported', 'dispatched', 'resolved'] &&
+             data.reporterUid is string &&
+             data.location is map &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated(); // Allow reading other users for community features, but restricted fields in practice
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
+                    (request.resource.data.role == resource.data.role || isAdmin());
+    }
+
+    match /incidents/{incidentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidIncident(request.resource.data) && 
+                    request.resource.data.reporterUid == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                    (request.auth.uid == resource.data.reporterUid || isResponder() || isAdmin());
+    }
+  }
+}

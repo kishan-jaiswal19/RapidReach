@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-app: #FFF9F7;
+  --surface-app: #FFFFFF;
+  --text-app: #2D1A12;
+  --border-app: #F2E8E4;
+  --primary-app: #E78351;
+  --accent-pink: #F8C8C8;
+  --accent-orange: #FFD6A5;
+  --radius-app: 32px;
+  --shadow-soft: 0 10px 25px -5px rgba(231, 131, 81, 0.05), 0 8px 10px -6px rgba(231, 131, 81, 0.05);
+  --shadow-lifted: 0 20px 25px -5px rgba(231, 131, 81, 0.1), 0 8px 10px -6px rgba(231, 131, 81, 0.1);
+}
+
+.dark {
+  --bg-app: #1A120F;
+  --surface-app: #261B17;
+  --text-app: #FDF5F2;
+  --border-app: #3D2B24;
+  --primary-app: #C66A3D;
+  --accent-pink: #D69E9E;
+  --accent-orange: #D6B68E;
+  --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  --shadow-lifted: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+@theme {
+  --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-primary: var(--primary-app);
+  --color-surface: var(--surface-app);
+  --color-border-ui: var(--border-app);
+  --color-focus: #F6AD55;
+  
+  --color-success: #C6F6D5;
+  --color-warning: #FEEBC8;
+  --color-error: #FED7D7;
+
+  --radius-ui: var(--radius-app);
+  
+  --shadow-soft: var(--shadow-soft);
+  --shadow-lifted: var(--shadow-lifted);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-[var(--bg-app)] text-[var(--text-app)] antialiased transition-colors duration-300;
+  }
+}
+
+.sos-pulse {
+  animation: sosPulse 2s infinite;
+}
+
+@keyframes sosPulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.live-blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
